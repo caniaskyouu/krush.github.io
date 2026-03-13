@@ -648,10 +648,6 @@ nav {
     </div>
   </div>
 
-  <div class="upload-row">
-    <button class="upload-btn" onclick="document.getElementById('fileIn').click()">+ Upload Artwork</button>
-    <input type="file" id="fileIn" multiple accept="image/*" style="display:none" onchange="handleUpload(event)">
-  </div>
 
   <!-- WORDS label + testimonials -->
   <div class="words-section">
@@ -682,13 +678,6 @@ nav {
       </div>
     </div>
 
-    <div class="cform-wrap">
-      <input class="cinp" id="cName" placeholder="Your name" type="text">
-      <input class="cinp" id="cMsg" placeholder="Leave a comment on my work…" type="text">
-      <button class="csub" onclick="addComment()">Post →</button>
-    </div>
-  </div>
-</div>
 
 <!-- ════════ WANDERINGS ════════ -->
 <div id="travel" class="page">
@@ -901,17 +890,38 @@ function loadAboutPhoto(e,slotId){
 function addComment(){
   const n=document.getElementById('cName').value.trim();
   const m=document.getElementById('cMsg').value.trim();
+  const photoFile=document.getElementById('cPhoto').files[0];
   if(!n||!m) return;
-  const c=document.createElement('div');
-  c.className='tc fade-new';
-  c.innerHTML=`<div class="tc-quote">"${m}"</div><div class="tc-name">— ${n}</div>`;
-  // insert into visible first half so it scrolls
-  const half=Math.floor(testiTrack.children.length/2);
-  testiTrack.insertBefore(c,testiTrack.children[half]);
-  document.getElementById('cName').value='';
-  document.getElementById('cMsg').value='';
-}
 
+  function buildCard(imgSrc){
+    const c=document.createElement('div');
+    c.className='tc fade-new';
+    c.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        ${imgSrc
+          ? `<img src="${imgSrc}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(17,17,17,.1)">`
+          : `<div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#e4e0d8,#cec9bf);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;opacity:.4">${n[0].toUpperCase()}</div>`
+        }
+        <div class="tc-name" style="margin:0">— ${n}</div>
+      </div>
+      <div class="tc-quote">"${m}"</div>
+    `;
+    const half=Math.floor(testiTrack.children.length/2);
+    testiTrack.insertBefore(c,testiTrack.children[half]);
+    document.getElementById('cName').value='';
+    document.getElementById('cMsg').value='';
+    document.getElementById('cPhoto').value='';
+    document.getElementById('cPhotoLabel').textContent='+ Photo';
+  }
+
+  if(photoFile){
+    const reader=new FileReader();
+    reader.onload=e=>buildCard(e.target.result);
+    reader.readAsDataURL(photoFile);
+  } else {
+    buildCard(null);
+  }
+}
 /* ─── TRAVEL SCRAPBOARD ─── */
 const places=[
   // CLICKABLE city stickers
@@ -1013,6 +1023,10 @@ function attachStkPhysics(el){
   });
   el.addEventListener('mouseleave',()=>{ inner.style.transform=''; inner.style.boxShadow=''; });
 }
+  document.getElementById('cPhoto').addEventListener('change',function(){
+  const name=this.files[0]?.name;
+  document.getElementById('cPhotoLabel').textContent = name ? '✓ '+name : '+ Photo';
+});
 </script>
 </body>
 </html>
